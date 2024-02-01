@@ -2451,24 +2451,180 @@ export const ACTION_TYPES = {
 </br>
 <details>
       <summary>
-        hello
+       todo app
      </summary>
 
 ```javascript
+
+Todo.js;
+todo.module.css;
+
 import React from "react";
 
-const Expensive = () => {
-  console.log("expensive compenent rendered!");
+import style from "./todo.module.css";
 
-  let total = 0;
-  for (let i = 0; i < 1000000000; i++) {
-    total += i;
-  }
-
-  return <div>Expensive</div>;
+const Todo = (props) => {
+  const { title, desc } = props.todo;
+  const { id } = props;
+  const handleClick = (id) => {
+    props.onRemoveTodo(id);
+  };
+  return (
+    <article className={style.todo}>
+      <div>
+        <h3>{title}</h3>
+        <p>{desc}</p>
+      </div>
+      <div>
+        <button
+          className={style.btn}
+          onClick={() => {
+            handleClick(id);
+          }}
+        >
+          <i className="fa fa-trash fa-2x"></i>
+        </button>
+      </div>
+    </article>
+  );
 };
 
-export default Expensive;
+export default Todo;
+
+
+
+Todos.js;
+todos.module.css;
+
+
+import React from "react";
+
+import Todo from "./Todo";
+import style from "./todos.module.css";
+
+const Todos = (props) => {
+  return (
+    <section className={style.todos}>
+      {props.todos.map((todo, index) => {
+        return (
+          <Todo
+            todo={todo.todo}
+            key={todo.id}
+            id={todo.id}
+            onRemoveTodo={props.onRemoveTodo}
+          />
+        );
+      })}
+    </section>
+  );
+};
+
+export default Todos;
+
+
+
+
+Home.js;
+home.module.css;
+
+import React, { useState } from "react";
+
+import { v4 as uuidv4 } from "uuid";
+
+import Todos from "./Todos";
+import style from "./home.module.css";
+import NewTodo from "./NewTodo";
+
+const Home = () => {
+  const [todos, setTodos] = useState([]);
+
+  const handleAddTodo = (todo) => {
+    setTodos((prevTodos) => {
+      return [...prevTodos, { id: uuidv4(), todo }];
+    });
+  };
+
+  const handleRemoveTodo = (id) => {
+    setTodos((prevTodos) => {
+      const filteredTodos = prevTodos.filter((todo) => todo.id !== id);
+      return filteredTodos;
+    });
+  };
+
+  return (
+    <div className={style.container}>
+      <h1 style={{ color: "white" }}>Todo App</h1>
+      <NewTodo onAddTodo={handleAddTodo} />
+      {todos && <Todos todos={todos} onRemoveTodo={handleRemoveTodo} />}
+      <button
+        className={style.btn}
+        onClick={() => {
+          setTodos([]);
+        }}
+      >
+        Clear All todos
+      </button>
+    </div>
+  );
+};
+
+export default Home;
+
+
+
+NewTodo.js;
+newtodo.module.css;
+
+import React, { useState } from "react";
+
+import style from "./newtodo.module.css";
+const NewTodo = (props) => {
+  const [todo, setTodo] = useState({ title: "", desc: "" });
+  const { title, desc } = todo;
+
+  const handleChange = (event) => {
+    const name = event.target.name;
+    setTodo((oldTodo) => {
+      return { ...oldTodo, [name]: event.target.value };
+    });
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    props.onAddTodo(todo);
+    setTodo({ title: "", desc: "" });
+  };
+
+  return (
+    <form className={style.form} onSubmit={handleSubmit}>
+      <div className={style["form-field"]}>
+        <label htmlFor="title">Title: </label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          value={title}
+          onChange={handleChange}
+        />
+      </div>
+      <div className={style["form-field"]}>
+        <label htmlFor="desc">Description: </label>
+        <textarea
+          type="text"
+          id="desc"
+          name="desc"
+          value={desc}
+          onChange={handleChange}
+        />
+      </div>
+      <button type="submit">Add todo</button>
+    </form>
+  );
+};
+
+export default NewTodo;
+
+
 ```
 
 </details>
